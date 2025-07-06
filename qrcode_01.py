@@ -12,6 +12,7 @@ an = list(st.digits+st.ascii_uppercase+' '+'$'+'%'+'*'+'+'+'-'+'.'+'/'+':') #alp
 v=tb.vq
 vb=tb.vb
 t=tb.tb
+er=tb.er
 C=tb.cd
 def md(sr: str): #mode of the QR Code
     l=len(sr)
@@ -96,13 +97,30 @@ def md(sr: str): #mode of the QR Code
         for i in range(blen):
             b[blen-(1+i)]=len%2
             len=mt.floor(len/2)
-        return b
-    
+        return b 
     def bd(a:str)->int: #binary to decimal -> completed
         r=0
-        for i in range(len(a)-1,-1,-1):
-            r+=mt.pow(2,i)*int(a[i])
+        for i in range(len(a)):
+            r+=mt.pow(2,8-(1+i))*int(a[i])
         return int(r)
+    def cd(v:int,bl: list[str]): #Codewords division -> completed
+        ba,bb=[],[]
+        i=0
+        for _ in range(C[v-1][1]):
+            bc=[]
+            for _ in range(C[v-1][2]):
+                if i<len(bl):
+                    bc.append(''.join(bl[i]))
+                    i+=1
+            ba.append(bc)
+        if C[v-1][3]:
+            for _ in range(C[v-1][4]):
+                bc=[]
+                for _ in range(C[v-1][5]):
+                    bc.append(''.join(bl[i]))
+                    i+=1
+            bb.append(bc)
+        return [ba,bb]
     for i in range(l): #mode check and first binary set-up
         for j in range(10): #num
             if sr[i]==str(j):
@@ -176,29 +194,19 @@ def md(sr: str): #mode of the QR Code
             case True:
                 b3+=ad[1]
                 bo=False   
-    def cd(v:int,bl: list[str]): #Codewords division -> completed
-        b1,b2=[],[]
-        i=0
-        for _ in range(C[v-1][1]):
-            b3=[]
-            for _ in range(C[v-1][2]):
-                if i<len(bl):
-                    b3.append([int(bit) for bit in bl[i]])
-                    i+=1
-            b1.append(b3)
-        if C[v-1][3]:
-            for _ in range(C[v-1][4]):
-                b3=[]
-                for _ in range(C[v-1][5]):
-                    b3.append([int(bit) for bit in bl[i]])
-                    i+=1
-            b2.append(b3)
-        return [b1,b2]
     b4=cd(vqr,b3)
-    
-    for i in range(len(b4)):
-        for j in range():
-            pass
+    b4_10=[[[0 for _ in range(len(b4[i][j]))] for j in range(len(b4[i]))] for i in range(len(b4))]
+    ec_10=[[[0 for _ in range(er[vqr-1])] for _ in range(len(b4[i]))] for i in range(len(b4))]
+    #parallel matrix to b4 but in base10
+    for i in range(len(b4)): 
+        for j in range(len(b4[i])): 
+            for k in range(len(b4[i][j])):
+                b4_10[i][j][k]=bd(b4[i][j][k])
+            ecc=gf.poly_div(b4_10[i][j],gf.ggen(er[vqr-1]))
+            for k in range(len(ecc)):
+                ec_10[i][j][k]=ecc[k] #control poly_div 
+    return b4_10,ec_10
+print(md("Hello, World!"))
     
 #Visual rappresentation
 def draw(grid,screen=sc):
