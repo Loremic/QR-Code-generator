@@ -15,7 +15,7 @@ def md(sr: str): #mode of the QR Code
     l=len(sr)
     c,min=[0,0,0],3 #min is out of range for comfort
     def d_enu(): #numeric mode -> completed
-        if len(sr)%3==0:
+        if l%3==0:
             n=[[0 for _ in range(3)] for _ in range(l/3)]
             for i in range(len(n)):
                 for j in range(3):
