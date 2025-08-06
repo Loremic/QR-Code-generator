@@ -10,12 +10,13 @@ t=imf.tb.tb
 er=imf.tb.er
 C=imf.tb.cd
 rb=imf.tb.rb
+ncm=imf.tb.ncm
 #Message preparation
 def md(sr: str): #mode of the QR Code
     l=len(sr)
     c,min=[0,0,0],3 #min is out of range for comfort
     def d_enu(): #numeric mode -> completed
-        if l%3==0:
+        if len(sr)%3==0:
             n=[[0 for _ in range(3)] for _ in range(l/3)]
             for i in range(len(n)):
                 for j in range(3):
@@ -227,9 +228,13 @@ def md(sr: str): #mode of the QR Code
     return fb,dim
 #QR-Code preparation
 #m,dim=md(s)
-m,dim=md("Hi") #tester line
+mb,dim=md("Hiiiiiiiiiiii") #tester line
 vqr=int((dim[0]-21)/4+1)
 qr=[[0]*(dim[1]+2) for _ in range(dim[0]+2)]
+#outer border
+for i in range(dim[0]+2):
+    qr[i][0],qr[0][i]=4,4
+    qr[i][dim[0]+1],qr[dim[0]+1][i]=4,4
 #Finder patterns
 for i in range(1,dim[0]+1):
     if i==1 or i==7:
@@ -256,11 +261,57 @@ for i in range(1,dim[0]+1):
         for j in range(1,dim[1]+1):
             if j==1 or j==7:
                 qr[i][j]=1
+#alignment pattern
+def pt(grid:list,p1:int,p2:int)->bool:
+    for i in range(-2,3):
+        for j in range(-2,3):
+            if grid[p1+i][p2+j]==1:
+                return False
+    return True
+if vqr-1!=0:
+    for p1 in ncm[vqr-1][0]:
+        for p2 in ncm[vqr-1][1]:
+            if pt(qr,p1,p2):
+                for i in range(-2,3):
+                    if p1+i==p1-2 or p1+i==p1+2:
+                         for j in range(-2,3):
+                            qr[p1+i][p2+j]=1
+                    else:
+                        qr[p1+i][p2-2]=1
+                        qr[p1+i][p2+2]=1
+                    if i==0:
+                        qr[p1][p2]=1
+#timing patterns
+for i in range(7,dim[0]-7,2):
+    qr[i][7],qr[7][i]=1,1
+qr[dim[0]-7][9]=1
+#format information area
+for i in range(dim[0]+1):
+    if (i>0 and i<10) or i>dim[0]-7:
+        if qr[i][9]==1:
+            continue
+        qr[i][9]=2
+for i in range(dim[1]+1):
+    if (i>0 and i<10) or i>dim[0]-8:
+        if qr[9][i]==1:
+            continue
+        qr[9][i]=2
+if vqr>=7:
+    for i in range(6):
+        for j in range(3):
+            qr[dim[0]-(j+1)][i+1]=2
+#data bits placement
+l=a=d=0
+def upm():
+    
+def dwm():
+    pass
 
+
+while l<len(mb):
+    break
 for i in range(dim[0]+2):
     print(qr[i])
-
-
 #Visual rappresentation
 for i in range(len(dim)):
     dim[i]=10*(dim[i]+1)
